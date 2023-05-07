@@ -1,4 +1,5 @@
-namespace Tabuleiro;
+namespace tabuleiro;
+//a posiçao é uma regra basica de tabuleiro, nao necessariamente de xadrez, por isso o namespace nao tá "xadrezConsole.Tabuleiro"
 
 public class Posicao
 {
