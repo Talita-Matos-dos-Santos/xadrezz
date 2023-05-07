@@ -26,4 +26,15 @@ class Tabuleiro
         //note, o nome do método é PECA no singular. O nome da matriz que será retornada é relativa ao atributo criado chamado PECAS no plural. Sao duas coisas diferentes!
         return pecas[linha, coluna];
     }
+    
+    //agora o tabuleiro vai ter que oferecer uma operacao pra colocar uma peca nele.
+
+    public void colocarPeca(Peca p, Posicao pos)
+    {
+        //vamos colocar uma Peca p na Posicao pos.
+        //vou entrar na matriz pecas aqui do tabuleiro, na posicao pos.linha, pos.coluna (ou seja, acessa a matriz pela linha e coluna do "objeto" pos que foi instanciado no tipo Posicao) e nessa posicao eu vou colocar uma Peca p (esse p é instanciada com posicao, tabuleiro e cor).
+        pecas[pos.linha, pos.coluna] = p;
+        p.posicao = pos;
+        //lembrando que posicao é um atributo da class Peca.
+    }
 }

@@ -30,9 +30,5 @@ class Tela
             Console.WriteLine();
             //abaixo tem a chave do forzao, acima tem a chave do forzinho
         }
-        
-        
-        
-        
     }
 }
