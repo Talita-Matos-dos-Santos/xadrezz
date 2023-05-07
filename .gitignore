@@ -1,0 +1,34 @@
+/xadrezConsole.sln
+
+# Arquivos de compilação
+*.obj
+*.dll
+*.exe
+*.pdb
+
+# Saída de compilação
+bin/
+obj/
+
+# Arquivos temporários
+[Tt]emp/
+[Oo]bj/
+
+# Cache do usuário
+*.userprefs
+
+# Arquivos específicos do Rider
+.idea/
+*.sln.iml
+
+# Pacotes NuGet
+packages/
+*.nupkg
+
+# Logs e arquivos de depuração
+*.log
+*.log.*
+*.dbmdl
+
+
+
