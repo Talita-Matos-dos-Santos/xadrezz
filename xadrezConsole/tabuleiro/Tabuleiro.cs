@@ -28,13 +28,58 @@ class Tabuleiro
     }
     
     //agora o tabuleiro vai ter que oferecer uma operacao pra colocar uma peca nele.
+    
+    public Peca peca(Posicao pos)
+    {
+        //aqui temos uma melhoria do método acima
+        return pecas[pos.linha, pos.coluna];
+    }
 
     public void colocarPeca(Peca p, Posicao pos)
     {
-        //vamos colocar uma Peca p na Posicao pos.
-        //vou entrar na matriz pecas aqui do tabuleiro, na posicao pos.linha, pos.coluna (ou seja, acessa a matriz pela linha e coluna do "objeto" pos que foi instanciado no tipo Posicao) e nessa posicao eu vou colocar uma Peca p (esse p é instanciada com posicao, tabuleiro e cor).
+        //vamos colocar uma Peca p na Posicao pos. Mas só vamos colocar se nao tiver nenhuma peca nessa posicao pos. Para isso:
+        if (existePeca(pos))
+        {
+            //se ja existe uma peça dada uma posicao, ent vou passar uma exceçao com essa frase.
+            throw new TabuleiroException("Já existe uma peça nessa posição!");
+        }
+        
+        //vou entrar na matriz pecas aqui do tabuleiro, na posicao pos.linha, pos.coluna (ou seja, acessa a matriz pela linha e coluna do "objeto" pos que foi instanciado no tipo Posicao) e nessa posicao eu vou colocar uma Peca p (tabuleiro e cor).
         pecas[pos.linha, pos.coluna] = p;
         p.posicao = pos;
         //lembrando que posicao é um atributo da class Peca.
+    }
+
+    public bool existePeca(Posicao pos)
+    {
+        //aqui é pra testar se existe uma peça dada uma Posicao pos. Ou seja, se tem uma peça nessa posiçao. Para isso, pede pra retornar a peça na posicao caso seja diferente de null. E se retornar msm, significa que é verdadeiro.
+        
+        //chama o validar posicao pq se der algum erro o método ja é cortado. 
+        validarPosicao(pos);
+        return peca(pos) != null;
+    }
+    
+    public bool posicaoValida(Posicao pos)
+    {
+        //metodo pra testar se o pos é valido ou nao, considerando que a posicao começa em 0 e vai ter um numero antes de linhas e colunas dados ao instanciar um Tabuleiros.
+
+        if (pos.linha < 0 || pos.linha >= linhas || pos.coluna <0 || pos.coluna >= colunas)
+        {
+            return false;
+        }
+
+        return true;
+    }
+    
+    public void validarPosicao(Posicao pos)
+    {
+        //esse metodo vai receber uma posicao e caso a posicao nao seja valida, ele vai lançar uma exceçao personalizada.
+        
+        //se a posicao nao for valida, eu lanço a exceçao com essa mensagem.
+        //a exclamacao na frente significa "nao for"/se for false. Ou seja, se no método acima posicaoValida() tiver um return false, entao:
+        if (!posicaoValida(pos))
+        {
+            throw new TabuleiroException("Posição inválida!");
+        }
     }
 }
