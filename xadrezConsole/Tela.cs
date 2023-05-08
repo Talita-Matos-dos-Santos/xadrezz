@@ -1,5 +1,6 @@
 using tabuleiro;
 namespace xadrezConsole;
+using xadrez;
 
 class Tela
 {
@@ -33,6 +34,17 @@ class Tela
             //abaixo tem a chave do forzao, acima tem a chave do forzinho
         }
         Console.WriteLine("  a b c d e f g h");
+    }
+
+    public static PosicaoXadrez lerPosicaoXadrez()
+    {
+        //esse metodo vai ler o teclado em string, ler e guardar numa string. (oq o usuario digitar, sendo q o usuario vai digitar uma posicaoxadrez (uma letra e um numero)). Ai vai guardar a primeira coisa q o usuario digitou, que tem q ser a letra e guardar numa char, bem como pegar a segunda coisa q o usuario digitou e guardar em um int. Lembrando que se oq o usuario digitou ta guardado numa string s, pra pegar a primeira coisa q o usuario digitou eu coloco s[0], a segunda coisa fica s[1].
+
+        string s = Console.ReadLine();
+        char coluna = s[0];
+        int linha = int.Parse(s[1] + ""); //ele disse q precisou de "" pro compilador pensar q era uma string msm e assim converter pra int
+
+        return new PosicaoXadrez(coluna, linha);
     }
 
     public static void imprimirPeca(Peca peca)

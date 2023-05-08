@@ -50,6 +50,25 @@ class Tabuleiro
         //lembrando que posicao é um atributo da class Peca.
     }
 
+    public Peca retirarPeca(Posicao pos)
+    {
+        //retirar uma peça ele vai me retornar uma peça, pois eventualmente eu posso precisar daquela peça. Por isso nao é void. Retiramos uma peca de uma dada Posicao pos
+        if (peca(pos) == null)
+        {
+            //se a peca que tiver na posicao pos for igual a nulo, significa que n tem peca nessa posicao, ai o metodo vai retornar nulo, ou seja, n vai retirar nenhuma peca e so retorna nulo.
+            return null;
+        }
+        //se passou do if acima significa que tem uma peça nessa posicao.
+        
+        Peca aux = peca(pos); //agr eu quero passar ent essa peca pra uma var auxiliar do tipo Peca.
+        
+        aux.posicao = null; //tira ela pra fora-> a posicao dessa peça aux vai receber null, ou seja, n vai mais ter peca nessa posicao, ela foi retirada.
+        
+        pecas[pos.linha, pos.coluna] = null; //marca a posicao dela como nulo, marca a posicao do tabuleiro q ela tava como nulo, ou seja, nao tem peça la mais
+        
+        return aux; //ai eu retorno essa peça
+    }
+
     public bool existePeca(Posicao pos)
     {
         //aqui é pra testar se existe uma peça dada uma Posicao pos. Ou seja, se tem uma peça nessa posiçao. Para isso, pede pra retornar a peça na posicao caso seja diferente de null. E se retornar msm, significa que é verdadeiro.

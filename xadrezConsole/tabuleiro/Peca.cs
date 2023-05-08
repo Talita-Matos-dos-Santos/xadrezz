@@ -20,6 +20,11 @@ class Peca
         //a quantidade de movimentos será iniciada com 0, pois obviamente qnd o jogo acaba de ser criado nenhuma peça se moveu ainda. Por isso ele nao foi usado como parametro de iniciaçao.
         this.qteMovimentos = 0;
     }
+
+    public void incrementarQteMovimentos()
+    {
+        qteMovimentos++;
+    }
 }
 //observaçoes: um tabuleiro tem varias peças.
 //a class Peca é uma class genérica, presente na camada tabuleiro.
