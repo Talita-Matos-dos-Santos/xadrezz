@@ -15,6 +15,15 @@ class Posicao
         this.coluna = coluna;
     }
 
+    public void definirValores(int linha, int coluna)
+    {
+        //os parametros sao os msm do construtor aq de Posicao.
+        //metodo criado pra poder facilitar a manipulaçao da variavel "pos" lá na class Rei dentro do metodo movimentosPossiveis().
+        
+        this.linha = linha;
+        this.coluna = coluna;
+    }
+
     public override string ToString()
     {
         return linha + ",  " + coluna;

@@ -1,6 +1,6 @@
 namespace tabuleiro;
 //aqui vamos colocar as coisas que uma peça tem. Por exemplo, ela tem uma posiçao e uma cor.
-class Peca
+abstract class Peca
 {
     public Posicao posicao { get; set; }
     public Cor cor { get; protected set; }
@@ -25,7 +25,13 @@ class Peca
     {
         qteMovimentos++;
     }
+    
+    //essa operacao de movimentos possiveis vai ter q me retornar uma matriz de booleanos, pq eu vou querer marcar nessa matriz verdadeiro onde for movimento onde for movimento possivel e falso onde nao for possivel.
+    public abstract bool[,] movimentosPossiveis(); //nao tem como eu implementar essa operacao aqui na class Peca pq cada peça tem os seus movimentos possiveis, cada peça tem uma regra. Logo, deve ser colocada em cada peça em específico. A Peca por si só é genérica. 
+    //o abstract na frente serve justamente pra isso, pra dizer que o metodo nao tem implementaçao nessa classe. Lembrando que quando se tem um metodo abstrato, a classe tbm deve automaticamente ser abstrata.
+
 }
+
 //observaçoes: um tabuleiro tem varias peças.
 //a class Peca é uma class genérica, presente na camada tabuleiro.
 //na camada jogo de xadrez eu tenho que criar peças especificas, com uma relaçao de herança com a superclasse PECA.
