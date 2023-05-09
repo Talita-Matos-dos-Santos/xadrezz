@@ -11,7 +11,8 @@ class PartidaDeXadrez
     public bool terminada { get; private set; }
     private HashSet<Peca> pecas; //esse conjunto vai guardar todas as minhas pecas da partida.
     private HashSet<Peca> capturadas;
-
+    public bool xeque { get; private set; }
+    
     public PartidaDeXadrez()
     {
         //aq fica como fica qnd uma partida inicia. turno e jogador devem ir mudando durante a partida, naturalmente.
@@ -19,15 +20,64 @@ class PartidaDeXadrez
         turno = 1;
         jogadorAtual = Cor.Branca;
         terminada = false;
+        xeque = false;
         pecas = new HashSet<Peca>();
         capturadas = new HashSet<Peca>();
         colocarPecas();
     }
+    
+    public Peca executaMovimento(Posicao origem, Posicao destino)
+    {
+        //executa um movimento da posicao q eu to agr(origem) pra posicao tal(destino)
+        
+        //executar um movimento é ir la no tabuleiro, pegar uma Peca p, retirar a peca p de um lugar(origem) e colocar a peca em outro lugar(destino).
+
+        Peca p = tab.retirarPeca(origem);
+        p.incrementarQteMovimentos();
+        
+        Peca pecaCapturada = tab.retirarPeca(destino); //tenho q retirar a peça do destino onde eu quero colocar a minha peça (caso tenha alguma).
+        
+        tab.colocarPeca(p, destino); //coloca a Peca p que tava na origem, no destino.
+        if (pecaCapturada != null)
+        {
+            capturadas.Add(pecaCapturada);
+            //se tiver uma peca em pecaCapturada, ent vou adicionar essa pecaCapturada no meu conjunto capturadas.
+        }
+
+        return pecaCapturada;
+    }
+
+    public void desfazMovimento(Posicao origem, Posicao destino, Peca pecaCapturada)
+    {
+        Peca p = tab.retirarPeca(destino); //tira a peca do destino q eu tinha colocado
+        p.decrementarQteMovimentos(); 
+        if (pecaCapturada != null) //ou seja, se for diferente de null é pq teve uma peca capturada
+        {
+            tab.colocarPeca(pecaCapturada, destino); //vou no tabuleiro e coloco a peca de volta no destino
+            capturadas.Remove(pecaCapturada); //tira a pecaCapturada do conjunto
+        }
+        tab.colocarPeca(p, origem);
+    }
 
     public void realizaJogada(Posicao origem, Posicao destino)
     {
-        //esse é o metodo q vou ter q chamar no meu programa pra realizar uma jogada, nao será mais o executaMovimento();
-        executaMovimento(origem, destino);
+        //qnd eu for realizar uma jogada eu tenho q pegar essa peca capturada do executaMovimento(). 
+        Peca pecaCapturada = executaMovimento(origem, destino);
+        //Se eu executei um movimento e capturei uma peca, eu tenho q ver antes de mais nd se com esse movimento eu fiquei em xeque. 
+        if (estaEmXeque(jogadorAtual))
+        {
+            desfazMovimento(origem, destino, pecaCapturada);
+            throw new TabuleiroException("Você não pode se colocar em xeque!");
+        }
+
+        if (estaEmXeque(adversaria(jogadorAtual)))
+        {
+            xeque = true;
+        }
+        else
+        {
+            xeque = false;
+        }
         turno++;
         mudaJogador();
     }
@@ -78,25 +128,7 @@ class PartidaDeXadrez
             throw new TabuleiroException("Posicao de destino inválida.");
         }
     }
-    public void executaMovimento(Posicao origem, Posicao destino)
-    {
-        //executa um movimento da posicao q eu to agr(origem) pra posicao tal(destino)
-        
-        //executar um movimento é ir la no tabuleiro, pegar uma Peca p, retirar a peca p de um lugar(origem) e colocar a peca em outro lugar(destino).
-
-        Peca p = tab.retirarPeca(origem);
-        p.incrementarQteMovimentos();
-        
-        Peca pecaCapturada = tab.retirarPeca(destino); //tenho q retirar a peça do destino onde eu quero colocar a minha peça (caso tenha alguma).
-        
-        tab.colocarPeca(p, destino); //coloca a Peca p que tava na origem, no destino.
-        if (pecaCapturada != null)
-        {
-            capturadas.Add(pecaCapturada);
-            //se tiver uma peca em pecaCapturada, ent vou adicionar essa pecaCapturada no meu conjunto capturadas.
-        }
-    }
-
+    
     public HashSet<Peca> pecasCapturadas(Cor cor)
     {
         //conjunto Peca chamado pecasCapturadas de uma dada cor que entrou como parametro. Ou seja, quem sao as pecas capturadas Brancas, e quem sao as pecas capturadas Pretas. No caso estao misturadas pq la no if do metodo executaMovimentos elas foram adicionadas ao conjunto "capturadas" sem analise de cor.
@@ -129,6 +161,57 @@ class PartidaDeXadrez
         //agr sim eu vou ter tds as pecas dessa cor, exceto as pecas capturadas dessa cor.
         //assim eu vou ficar com as pecas q ainda estao em jogo e q é da cor em especifico q eu quero.
         return aux;
+    }
+
+    private Cor adversaria(Cor cor)
+    {
+        //se a cor q entra como parametro for igual a cor branca, retorne cor preta para o metodo adversaria. A cor que for retornada é a cor adversaria da cor que entrar como parametro.
+        if (cor == Cor.Branca)
+        {
+            return Cor.Preta;
+        }
+        else
+        {
+            return Cor.Branca;
+        }
+    }
+
+    private Peca rei(Cor cor)
+    {
+        //vai me devolver quem é o rei de uma dada cor.
+        
+        //lembrando q Peca é uma superclasse e Rei é uma subclasse.
+        foreach (Peca x in pecasEmJogo(cor))
+        {
+            if (x is Rei)
+            {
+                //se a Peca x é uma peça instanciada como Rei
+                return x;
+            }
+        }
+        //se esgotar o for e n encontrar nenhum rei, retorna null q vai significar q n tem rei (isso n deve acontecer)
+        return null;
+    }
+
+    public bool estaEmXeque(Cor cor)
+    {
+        Peca R = rei(cor);
+        if (R == null)
+        {
+            throw new TabuleiroException($"Não tem rei da cor {cor} no tabuleiro!");
+        }
+        
+        //para cada peca adversaria eu vou testar se na matriz q recebeu os movimentos possiveis da peca adversaria x na posicao onde tá o rei estiver verdadeiro, significa q essa peça adversaria pode capturar o rei, ai eu retorno o true (indicando que o rei esta em xeque)
+        foreach (Peca x in pecasEmJogo(adversaria(cor)))
+        {
+            bool[,] mat = x.movimentosPossiveis();
+            if (mat[R.posicao.linha, R.posicao.coluna])
+            {
+                return true;
+            }
+        }
+        //se varrer tds pecas adversarias e nenhuma cortar o metodo no true, significa que nao esta em xeque.
+        return false;
     }
 
     public void colocarNovaPeca(char coluna, int linha, Peca peca)

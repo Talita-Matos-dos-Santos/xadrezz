@@ -26,6 +26,11 @@ abstract class Peca
         qteMovimentos++;
     }
 
+    public void decrementarQteMovimentos()
+    {
+        qteMovimentos--;
+    }
+
     public bool existeMovimentosPossiveis()
     {
         //ela vai conferir se na matriz bool[,] movimentosPossiveis existe pelo menos algum valor verdadeiro, ou seja, testa se a peça nao ta bloqueada de movimento.
