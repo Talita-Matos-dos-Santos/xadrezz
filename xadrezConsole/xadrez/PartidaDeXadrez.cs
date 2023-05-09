@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using tabuleiro;
 namespace xadrez;
 
@@ -8,6 +9,8 @@ class PartidaDeXadrez
     public int turno { get; private set; }
     public Cor jogadorAtual { get; private set; }
     public bool terminada { get; private set; }
+    private HashSet<Peca> pecas; //esse conjunto vai guardar todas as minhas pecas da partida.
+    private HashSet<Peca> capturadas;
 
     public PartidaDeXadrez()
     {
@@ -16,6 +19,8 @@ class PartidaDeXadrez
         turno = 1;
         jogadorAtual = Cor.Branca;
         terminada = false;
+        pecas = new HashSet<Peca>();
+        capturadas = new HashSet<Peca>();
         colocarPecas();
     }
 
@@ -85,22 +90,70 @@ class PartidaDeXadrez
         Peca pecaCapturada = tab.retirarPeca(destino); //tenho q retirar a peça do destino onde eu quero colocar a minha peça (caso tenha alguma).
         
         tab.colocarPeca(p, destino); //coloca a Peca p que tava na origem, no destino.
+        if (pecaCapturada != null)
+        {
+            capturadas.Add(pecaCapturada);
+            //se tiver uma peca em pecaCapturada, ent vou adicionar essa pecaCapturada no meu conjunto capturadas.
+        }
     }
 
+    public HashSet<Peca> pecasCapturadas(Cor cor)
+    {
+        //conjunto Peca chamado pecasCapturadas de uma dada cor que entrou como parametro. Ou seja, quem sao as pecas capturadas Brancas, e quem sao as pecas capturadas Pretas. No caso estao misturadas pq la no if do metodo executaMovimentos elas foram adicionadas ao conjunto "capturadas" sem analise de cor.
+        //esse metodo é justamente pra eu ver quais sao as Pecas capturadas de uma cor em especifico.
+        HashSet<Peca> aux = new HashSet<Peca>();
+        foreach (Peca x in capturadas)
+        {
+            //vou percorrer todas as pecas x no conjunto dos capturadas
+            if (x.cor == cor)//se a cor do meu obj x do conjunto capturadas for igual a cor q entrei como parametro
+            {
+                aux.Add(x); //entao eu vou add em aux as q derem true
+            }
+        }
+
+        return aux;
+    }
+
+    public HashSet<Peca> pecasEmJogo(Cor cor)
+    {
+        HashSet<Peca> aux = new HashSet<Peca>();
+        foreach (Peca x in pecas)
+        {
+            //vou percorrer todas as pecas x no conjunto dos pecas -> aq vai percorrer todas as pecas do jogo
+            if (x.cor == cor)//se a cor do meu obj x do conjunto pecas for igual a cor q entrei como parametro
+            {
+                aux.Add(x); //entao eu vou add em aux as q derem true
+            }
+        }
+        aux.ExceptWith(pecasCapturadas(cor)); //agr eu vou pegar esse meu conjunto q add pecas e retirar (ExceptWith) todas as pecas capturadas dessa cor que entrei no parametro.
+        //agr sim eu vou ter tds as pecas dessa cor, exceto as pecas capturadas dessa cor.
+        //assim eu vou ficar com as pecas q ainda estao em jogo e q é da cor em especifico q eu quero.
+        return aux;
+    }
+
+    public void colocarNovaPeca(char coluna, int linha, Peca peca)
+    {
+        //vai colocar no tabuleiro essa peca, em qual posicao? numa new posicaoxadrez.
+        //dado uma coluna e linha e uma peca, eu vou no tabuleiro da partida e coloco.
+        tab.colocarPeca(peca, new PosicaoXadrez(coluna, linha).toPosicao());
+        pecas.Add(peca); //alem de colocar a peca no tabuleiro eu tenho que dizer q no conjunto pecas da minha partida eu vou adicionar essa peça nesse conjunto, p dizer q essa peca faz parte da minha partida. 
+    }
     private void colocarPecas()
     {
-        tab.colocarPeca(new Torre(tab, Cor.Branca), new PosicaoXadrez('c', 1).toPosicao()); //sem o toPosicao() daria erro, pois o colocarPeca(int, int) e o new posicaoxadrez pega char e int, por isso preciss converter pra toPosicao() vai retornar linha + coluna (que la na class Posicao sao inteiros).
-        tab.colocarPeca(new Torre(tab, Cor.Branca), new PosicaoXadrez('c', 2).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Branca), new PosicaoXadrez('d', 2).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Branca), new PosicaoXadrez('e', 2).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Branca), new PosicaoXadrez('e', 1).toPosicao());
-        tab.colocarPeca(new Rei(tab, Cor.Branca), new PosicaoXadrez('d', 1).toPosicao());
+        colocarNovaPeca('c', 1, new Torre(tab, Cor.Branca));
+        colocarNovaPeca('c', 2, new Torre(tab, Cor.Branca));
+        colocarNovaPeca('d', 2, new Torre(tab, Cor.Branca));
+        colocarNovaPeca('e', 2, new Torre(tab, Cor.Branca));
+        colocarNovaPeca('e', 1, new Torre(tab, Cor.Branca));
+        colocarNovaPeca('d', 1, new Rei(tab, Cor.Branca));
         
-        tab.colocarPeca(new Torre(tab, Cor.Preta), new PosicaoXadrez('c', 7).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Preta), new PosicaoXadrez('c', 8).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Preta), new PosicaoXadrez('d', 7).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Preta), new PosicaoXadrez('e', 7).toPosicao());
-        tab.colocarPeca(new Torre(tab, Cor.Preta), new PosicaoXadrez('e', 8).toPosicao());
-        tab.colocarPeca(new Rei(tab, Cor.Preta), new PosicaoXadrez('d', 8).toPosicao());
+        
+        colocarNovaPeca('c', 7, new Torre(tab, Cor.Preta));
+        colocarNovaPeca('c', 8, new Torre(tab, Cor.Preta));
+        colocarNovaPeca('d', 7, new Torre(tab, Cor.Preta));
+        colocarNovaPeca('e', 7, new Torre(tab, Cor.Preta));
+        colocarNovaPeca('e', 8, new Torre(tab, Cor.Preta));
+        colocarNovaPeca('d', 8, new Rei(tab, Cor.Preta));
     }
+    
 }
