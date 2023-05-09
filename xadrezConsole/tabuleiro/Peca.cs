@@ -51,16 +51,12 @@ abstract class Peca
         return false;
     }
 
-    public bool podeMoverPara(Posicao pos)
+    public bool movimentoPossivel(Posicao pos)
     {
         //vai me dizer se pode mover para uma dada posicao pos, ou seja, se essa posicao é um dos movimentos possiveis.
         //vai pegar os movimentos possiveis dessa peca e vai testar se na matriz na linha e coluna dessa posicao é true;
         return movimentosPossiveis()[pos.linha, pos.coluna];
     }
-    
-    
-    
-    
     
     //essa operacao de movimentos possiveis vai ter q me retornar uma matriz de booleanos, pq eu vou querer marcar nessa matriz verdadeiro onde for movimento onde for movimento possivel e falso onde nao for possivel.
     public abstract bool[,] movimentosPossiveis(); //nao tem como eu implementar essa operacao aqui na class Peca pq cada peça tem os seus movimentos possiveis, cada peça tem uma regra. Logo, deve ser colocada em cada peça em específico. A Peca por si só é genérica. 

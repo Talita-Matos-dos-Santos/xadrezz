@@ -133,7 +133,7 @@ class PartidaDeXadrez
     public void validarPosicaoDeDestino(Posicao origem, Posicao destino)
     {
         //precisa da origem pq o destino é validado em relaçao a origem. Confere se pode ir de uma posicao p outra.
-        if (!tab.peca(origem).podeMoverPara(destino))
+        if (!tab.peca(origem).movimentoPossivel(destino))
         {
             //se a peca de origem NAO(!) pode mover para a posicao de destino, ent eu lanço uma exceçao.
             throw new TabuleiroException("Posicao de destino inválida.");
