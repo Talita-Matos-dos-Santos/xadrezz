@@ -78,8 +78,17 @@ class PartidaDeXadrez
         {
             xeque = false;
         }
-        turno++;
-        mudaJogador();
+
+        if (testeXequemate(adversaria(jogadorAtual)))
+        {
+            //se eu realizei uma jogada e o meu adversario esta em xequemate, significa que o jogo terminou.
+            terminada = true;
+        }
+        else
+        {
+            turno++;
+            mudaJogador();
+        }
     }
 
     private void mudaJogador()
@@ -95,6 +104,8 @@ class PartidaDeXadrez
             jogadorAtual = Cor.Branca;
         }
     }
+    
+    
 
     public void validarPosicaoDeOrigem(Posicao pos)
     {
@@ -212,6 +223,47 @@ class PartidaDeXadrez
         }
         //se varrer tds pecas adversarias e nenhuma cortar o metodo no true, significa que nao esta em xeque.
         return false;
+    }
+
+    public bool testeXequemate(Cor cor)
+    {
+        //o rei de uma certa cor esta em xequemate?
+        if (!estaEmXeque(cor))
+        {
+            return false;
+            //se o rei de uma cor n esta em xeque ent com ctz tbm n ta em xequemate.
+        }
+
+        foreach (Peca x in pecasEmJogo(cor))
+        {
+            //vai percorrer toda peca x no conjunto de pecasemjogo dessa cor. Dentre as pecas desse conjunto, quero achar alguma peca q movendo, tira do xeque.
+
+            bool[,] mat = x.movimentosPossiveis(); //vou pegar a matriz de movimentos possiveis dessa peca x e vou colocar em uma q vai servir como auxiliar. Ai pra cada movimento eu vou ver se tira do xeque ou n
+            for (int i = 0; i < tab.linhas; i++)
+            {
+                for (int j = 0; j < tab.colunas; j++)
+                {
+                    if (mat[i, j])//se tiver marcado como true
+                    {
+                        Posicao origem = x.posicao;
+                        Posicao destino = new Posicao(i, j);
+                        //significa q é uma posicao possivel pra essa peca x.
+                        Peca pecaCapturada = executaMovimento(origem, destino);
+                        //vou tentar executar um movimento da posicao de origem q ela ja ta pra essa posicao i, j. (mas so se for true).
+                        bool testeXeque = estaEmXeque(cor); //executei o movimento acima e agr testo se ainda estaEmXeque.
+                        desfazMovimento(origem, destino, pecaCapturada); //fez o movimento, testou se ainda tava em xeque, agr desfaz o movimento.
+
+                        if (!testeXeque)
+                        {
+                            //se n esta mais em xeque, significa q o movimento q eu fiz, tira do xeque. Entao existe um movimento q tira do xeque, logo nao ta em xequemate.
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        //fez isso para todas as pecas e nenhuma tirou do xeque, significa para essa cor que ela ta em Xequemate e perdeu o jogo.
+        return true;
     }
 
     public void colocarNovaPeca(char coluna, int linha, Peca peca)
