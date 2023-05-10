@@ -43,6 +43,33 @@ class PartidaDeXadrez
             capturadas.Add(pecaCapturada);
             //se tiver uma peca em pecaCapturada, ent vou adicionar essa pecaCapturada no meu conjunto capturadas.
         }
+        
+        // #jogadaespecial roque pequeno
+        if (p is Rei && destino.coluna == origem.coluna + 2)//+2 pq é pra direita
+        {
+            //se a Peca p que foi movida é Rei e se a coluna da posicao de destino for igual a coluna da posicao de origem +2, ou seja, significa q eu movi esse rei duas casas, ENTAO É UM ROQUE. Se for um roque eu tbm tenho q mexer a torre.
+
+            Posicao origemT = new Posicao(origem.linha, origem.coluna + 3); //origem da Torre é msm linha do rei e 3 casas pro lado em relacao a origem do rei
+            Posicao destinoT = new Posicao(origem.linha, origem.coluna + 1); //destino da Torre é msm linha do rei e 1 casa pro lado em relacao a origem do rei.
+
+            Peca T = tab.retirarPeca(origemT);
+            T.incrementarQteMovimentos();
+            tab.colocarPeca(T, destinoT);
+        }
+        
+        // #jogadaespecial roque grande
+        if (p is Rei && destino.coluna == origem.coluna - 2)//agr o rei vai andar p esquerda, por isso eh -2
+        {
+            //se a Peca p que foi movida é Rei e se a coluna da posicao de destino for igual a coluna da posicao de origem +2, ou seja, significa q eu movi esse rei duas casas, ENTAO É UM ROQUE. Se for um roque eu tbm tenho q mexer a torre.
+
+            Posicao origemT = new Posicao(origem.linha, origem.coluna - 4); //origem da Torre é msm linha do rei e 4 casas pro lado em relacao a origem do rei
+            Posicao destinoT = new Posicao(origem.linha, origem.coluna - 1); //destino da Torre é msm linha do rei e 1 casa pro lado em relacao a origem do rei.
+
+            Peca T = tab.retirarPeca(origemT);
+            T.incrementarQteMovimentos();
+            tab.colocarPeca(T, destinoT);
+        }
+       
 
         return pecaCapturada;
     }
@@ -57,6 +84,32 @@ class PartidaDeXadrez
             capturadas.Remove(pecaCapturada); //tira a pecaCapturada do conjunto
         }
         tab.colocarPeca(p, origem);
+        
+        //ja que la no executaMovimento() eu incrementei codigo pra alterar a posicao da torre na jogada especial, agr eu tbm tenho q ter codigo pra desfazer isso caso nao tenha cumprido as condicoes impostas aqui.
+        
+        // #jogadaespecial roque pequeno
+        if (p is Rei && destino.coluna == origem.coluna + 2)
+        {
+            //se a Peca p que foi movida é Rei e se a coluna da posicao de destino for igual a coluna da posicao de origem +2, ou seja, significa q eu movi esse rei duas casas, ENTAO É UM ROQUE. Se for um roque eu tbm tenho q mexer a torre.
+
+            Posicao origemT = new Posicao(origem.linha, origem.coluna + 3); 
+            Posicao destinoT = new Posicao(origem.linha, origem.coluna + 1); 
+
+            Peca T = tab.retirarPeca(destinoT);//vou tirar o rei desse destinoT que eu coloquei ali
+            T.decrementarQteMovimentos();//vou decrementar a qte
+            tab.colocarPeca(T, origemT);//volto ele pra origem dessa torre
+        }
+        
+        // #jogadaespecial roque grande
+        if (p is Rei && destino.coluna == origem.coluna - 2)
+        {
+            Posicao origemT = new Posicao(origem.linha, origem.coluna - 4); 
+            Posicao destinoT = new Posicao(origem.linha, origem.coluna - 1); 
+
+            Peca T = tab.retirarPeca(destinoT);
+            T.decrementarQteMovimentos();
+            tab.colocarPeca(T, origemT);
+        }
     }
 
     public void realizaJogada(Posicao origem, Posicao destino)
@@ -279,7 +332,7 @@ class PartidaDeXadrez
         colocarNovaPeca('b', 1, new Cavalo(tab, Cor.Branca));
         colocarNovaPeca('c', 1, new Bispo(tab, Cor.Branca));
         colocarNovaPeca('d', 1, new Dama(tab, Cor.Branca));
-        colocarNovaPeca('e', 1, new Rei(tab, Cor.Branca));
+        colocarNovaPeca('e', 1, new Rei(tab, Cor.Branca, this));//como eu ja to aq dentro da propria partida, entao eu coloco um "this" pra fazer referencia a ela msm.
         colocarNovaPeca('f', 1, new Bispo(tab, Cor.Branca));
         colocarNovaPeca('g', 1, new Cavalo(tab, Cor.Branca));
         colocarNovaPeca('h', 1, new Torre(tab, Cor.Branca));
@@ -298,7 +351,7 @@ class PartidaDeXadrez
         colocarNovaPeca('b', 8, new Cavalo(tab, Cor.Preta));
         colocarNovaPeca('c', 8, new Bispo(tab, Cor.Preta));
         colocarNovaPeca('d', 8, new Dama(tab, Cor.Preta));
-        colocarNovaPeca('e', 8, new Rei(tab, Cor.Preta));
+        colocarNovaPeca('e', 8, new Rei(tab, Cor.Preta, this));//como eu ja to aq dentro da propria partida, entao eu coloco um "this" pra fazer referencia a ela msm.
         colocarNovaPeca('f', 8, new Bispo(tab, Cor.Preta));
         colocarNovaPeca('g', 8, new Cavalo(tab, Cor.Preta));
         colocarNovaPeca('h', 8, new Torre(tab, Cor.Preta));
