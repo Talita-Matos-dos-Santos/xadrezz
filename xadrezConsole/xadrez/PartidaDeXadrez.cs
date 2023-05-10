@@ -169,7 +169,30 @@ class PartidaDeXadrez
             desfazMovimento(origem, destino, pecaCapturada);
             throw new TabuleiroException("Você não pode se colocar em xeque!");
         }
+        
+        Peca p = tab.peca(destino); //qual foi a peca q foi movida
+        //se cheguei aq a jogada foi efetivada.
+        
+        // #jogadaespecial promocao
+        //tenho q ver se a peca q foi movida eh um peao, se for um peao
+        if (p is Peao)
+        {
+            if (p.cor == Cor.Branca && destino.linha == 0 || (p.cor == Cor.Preta && destino.linha == 7))
+            {
+                //se acontecer isso significa q é uma jogada de promocao
+                p = tab.retirarPeca(destino);
+                pecas.Remove(p);
+                Peca dama = new Dama(tab, p.cor);//no jogo oficial o jogador poderia escolher qual peca ele quer, mas aq vamos transformar diretamente em dama (geralmente escolhem dama mesmo)
+                tab.colocarPeca(dama, destino);
+                pecas.Add(dama);
+            }
+        }
+        
+        
 
+        
+        
+        
         if (estaEmXeque(adversaria(jogadorAtual)))
         {
             xeque = true;
@@ -189,8 +212,7 @@ class PartidaDeXadrez
             turno++;
             mudaJogador();
         }
-
-        Peca p = tab.peca(destino); //qual foi a peca q foi movida
+        
         // #jogadaespecial en passant
         
         //caso essa peca q foi movida seja um Peao e andou duas casas, quer dizer q foi a primeira vez e ela ta vulneravel(????)-> eu acho q talvez o peao so pode andar 2 casas se for a primeira vez dele, por isso fica subentendido
