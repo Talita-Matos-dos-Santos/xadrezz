@@ -12,6 +12,7 @@ class PartidaDeXadrez
     private HashSet<Peca> pecas; //esse conjunto vai guardar todas as minhas pecas da partida.
     private HashSet<Peca> capturadas;
     public bool xeque { get; private set; }
+    public Peca vulneravelEnpassant { get; private set; }
     
     public PartidaDeXadrez()
     {
@@ -21,6 +22,7 @@ class PartidaDeXadrez
         jogadorAtual = Cor.Branca;
         terminada = false;
         xeque = false;
+        vulneravelEnpassant = null;
         pecas = new HashSet<Peca>();
         capturadas = new HashSet<Peca>();
         colocarPecas();
@@ -70,7 +72,30 @@ class PartidaDeXadrez
             tab.colocarPeca(T, destinoT);
         }
        
+        // #jogadaespecial en passant
+        //qnd eu executar o movimento eu tenho q ver se esse movimento é um en passant, se for eu vou ter q capturar a peca vulneravel na mao.
+        //a peca movida é a Peca p, vamos aproveita-la aq
+        //qnd a gnt faz o en passant eu movo a peca branca uma coluna antes da propria origem e uma linha acima da peca q sera capturada.
+        if (p is Peao)
+        {
+            if (origem.coluna != destino.coluna && pecaCapturada == null)
+            {
+                //vai significar q o peao mexeu na diagonal. Diagonal é movimento de captura do peao.
+                Posicao posP;
+                if (p.cor == Cor.Branca)
+                {
+                    posP = new Posicao(destino.linha + 1,
+                        destino.coluna); //esse posP é a posicao do Peao q vai ser capturado "na mao
+                }
+                else
+                {
+                    posP = new Posicao(destino.linha - 1, destino.coluna);
+                }
 
+                pecaCapturada = tab.retirarPeca(posP);
+                capturadas.Add(pecaCapturada);
+            }
+        } 
         return pecaCapturada;
     }
 
@@ -110,6 +135,28 @@ class PartidaDeXadrez
             T.decrementarQteMovimentos();
             tab.colocarPeca(T, origemT);
         }
+        
+        //pela mecanica geral, na hr de desfazer ele volta a peca capturada pra posicao de destino da Peca p que eu to movendo agr. So q a posicao de origem da peca capturada nesse caso n é a posicao de destino da peca q ta se movimentando. A mecanica geral n funciona aq pq no en passant a peca q se move nao toma o lugar da peca capturada.
+        //dessa forma, é necessario fazer outra regra aq exclusiva do en passant.
+        
+        // #jogadaespecial en passant
+        if (p is Peao)
+        {
+            if (origem.coluna != destino.coluna && pecaCapturada == vulneravelEnpassant)//significa q foi um movimento de captura e n de apenas movimento
+            {
+                Peca peao = tab.retirarPeca(destino);//eu tiro o peao q tinha voltado pro lugar errado
+                Posicao posP;
+                if (p.cor == Cor.Branca)//se a cor do peao q moveu for branca, entao
+                {
+                    posP = new Posicao(3, destino.coluna);
+                }
+                else //caso contrario o peao q se moveu foi a preta
+                {
+                    posP = new Posicao(4, destino.coluna);
+                }
+                tab.colocarPeca(peao, posP);
+            }
+        }
     }
 
     public void realizaJogada(Posicao origem, Posicao destino)
@@ -142,6 +189,23 @@ class PartidaDeXadrez
             turno++;
             mudaJogador();
         }
+
+        Peca p = tab.peca(destino); //qual foi a peca q foi movida
+        // #jogadaespecial en passant
+        
+        //caso essa peca q foi movida seja um Peao e andou duas casas, quer dizer q foi a primeira vez e ela ta vulneravel(????)-> eu acho q talvez o peao so pode andar 2 casas se for a primeira vez dele, por isso fica subentendido
+        if (p is Peao && (destino.linha == origem.linha - 2 || destino.linha == origem.linha + 2))
+        {
+            //se isso for vdd significa q ta vulneravel a tomar um enpassant no proximo turno. 
+            vulneravelEnpassant = p;
+        }
+        else
+        {
+            vulneravelEnpassant = null;
+        }
+        
+        
+        
     }
 
     private void mudaJogador()
@@ -337,14 +401,14 @@ class PartidaDeXadrez
         colocarNovaPeca('g', 1, new Cavalo(tab, Cor.Branca));
         colocarNovaPeca('h', 1, new Torre(tab, Cor.Branca));
         
-        colocarNovaPeca('a', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('b', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('c', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('d', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('e', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('f', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('g', 2, new Peao(tab, Cor.Branca));
-        colocarNovaPeca('h', 2, new Peao(tab, Cor.Branca));
+        colocarNovaPeca('a', 2, new Peao(tab, Cor.Branca, this)); //como eu ja to aq dentro da propria partida, entao eu coloco um "this" pra fazer referencia a ela msm.
+        colocarNovaPeca('b', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('c', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('d', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('e', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('f', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('g', 2, new Peao(tab, Cor.Branca, this));
+        colocarNovaPeca('h', 2, new Peao(tab, Cor.Branca, this));
         
         
         colocarNovaPeca('a', 8, new Torre(tab, Cor.Preta));
@@ -356,14 +420,13 @@ class PartidaDeXadrez
         colocarNovaPeca('g', 8, new Cavalo(tab, Cor.Preta));
         colocarNovaPeca('h', 8, new Torre(tab, Cor.Preta));
         
-        colocarNovaPeca('a', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('b', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('c', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('d', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('e', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('f', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('g', 7, new Peao(tab, Cor.Preta));
-        colocarNovaPeca('h', 7, new Peao(tab, Cor.Preta));
+        colocarNovaPeca('a', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('b', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('c', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('d', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('e', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('f', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('g', 7, new Peao(tab, Cor.Preta, this));
+        colocarNovaPeca('h', 7, new Peao(tab, Cor.Preta, this));
     }
-    
 }
